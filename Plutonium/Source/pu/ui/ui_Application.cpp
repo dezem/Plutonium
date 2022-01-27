@@ -22,11 +22,6 @@ namespace pu::ui
         padInitializeDefault(&this->input_pad);
     }
 
-    void Application::LoadLayout(std::shared_ptr<Layout> Layout)
-    {
-        this->lyt = Layout;
-    }
-
     void Application::Prepare()
     {
         if(!this->loaded)
@@ -51,7 +46,7 @@ namespace pu::ui
         return ToShow->Show(this->rend, this);
     }
 
-    int Application::CreateShowDialog(const std::string& Title, const std::string& Content, std::vector<std::string> Options, bool UseLastOptionAsCancel, const std::string& Icon)
+    int Application::CreateShowDialog(String Title, String Content, std::vector<String> Options, bool UseLastOptionAsCancel, std::string Icon)
     {
         Dialog dlg(Title, Content);
         for(s32 i = 0; i < Options.size(); i++)
@@ -64,21 +59,6 @@ namespace pu::ui
         if(dlg.UserCancelled()) opt = -1;
         else if(!dlg.IsOk()) opt = -2;
         return opt;
-    }
-
-    void Application::StartOverlay(std::shared_ptr<Overlay> Overlay)
-    {
-        this->ovl = Overlay;
-    }
-
-    void Application::StartOverlayWithTimeout(std::shared_ptr<Overlay> Overlay, u64 Milli)
-    {
-        if(this->ovl == nullptr)
-        {
-            this->ovl = std::dynamic_pointer_cast<ui::Overlay>(Overlay);
-            this->tmillis = Milli;
-            this->tclock = std::chrono::steady_clock::now();
-        }
     }
 
     void Application::EndOverlay()
@@ -213,7 +193,7 @@ namespace pu::ui
                 if(!this->rover) elm->OnInput(d, u, h, tch);
             }
         }
-        if(this->ovl != NULL)
+        if(this->ovl != nullptr)
         {
             bool rok = this->ovl->Render(this->rend);
             if(this->tmillis > 0)

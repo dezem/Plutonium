@@ -5,17 +5,27 @@ namespace pu::ui::elm
 {
     static s32 prev_touchcount = 0;
 
-    Toggle::Toggle(s32 X, s32 Y, const std::string& Content, u64 Key, Color Color)
-        : Element::Element(), x(X), y(Y), key(Key), cnt(Content), clr(Color)
+    Toggle::Toggle(s32 X, s32 Y, String Content, u64 Key, Color Color) : Element::Element()
     {
+        this->x = X;
+        this->y = Y;
+        this->key = Key;
+        this->cnt = Content;
+        this->clr = Color;
+        this->fnt_name = "DefaultFont@25";
+        this->fsize = 25;
         this->togfact = 255;
         this->checked = false;
-        this->SetFontSize(25);
+        this->ntex = render::RenderText(this->fnt_name, Content, Color);
     }
 
     Toggle::~Toggle()
     {
-        render::DeleteTexture(this->ntex);
+        if (this->ntex != nullptr)
+        {
+            render::DeleteTexture(this->ntex);
+            this->ntex = nullptr;
+        }
     }
 
     s32 Toggle::GetX()
@@ -48,24 +58,22 @@ namespace pu::ui::elm
         return 0;
     }
 
-    std::string Toggle::GetContent()
+    String Toggle::GetContent()
     {
         return this->cnt;
     }
 
-    void Toggle::SetContent(const std::string& Content)
+    void Toggle::SetContent(String Content)
     {
         this->cnt = Content;
         render::DeleteTexture(this->ntex);
-        this->ntex = render::RenderText(this->font, this->meme, Content, this->clr);
+        this->ntex = render::RenderText(this->fnt_name, Content, this->clr);
     }
 
-    void Toggle::SetFontSize(s32 FontSize)
+    void Toggle::SetFont(String font_name)
     {
-        this->font = render::LoadDefaultFont(FontSize);
-        this->meme = render::LoadSharedFont(render::SharedFont::NintendoExtended, FontSize);
-        render::DeleteTexture(this->ntex);
-        this->ntex = render::RenderText(this->font, this->meme, this->cnt, this->clr);
+        this->fnt_name = font_name;
+        this->ntex = render::RenderText(this->fnt_name, this->cnt, this->clr);
     }
 
     Color Toggle::GetColor()
@@ -77,7 +85,7 @@ namespace pu::ui::elm
     {
         this->clr = Color;
         render::DeleteTexture(this->ntex);
-        this->ntex = render::RenderText(this->font, this->meme, this->cnt, Color);
+        this->ntex = render::RenderText(this->fnt_name, this->cnt, Color);
     }
 
     u64 Toggle::GetKey()
@@ -97,8 +105,8 @@ namespace pu::ui::elm
 
     void Toggle::OnRender(render::Renderer::Ref &Drawer, s32 X, s32 Y)
     {
-        s32 tw = render::GetTextureWidth(this->ntex);
-        s32 th = render::GetTextureHeight(this->ntex);
+        s32 tw = render::GetTextWidth(this->fnt_name, this->cnt);
+        s32 th = render::GetTextHeight(this->fnt_name, this->cnt);
         s32 rw = th;
         s32 rh = (2 * th);
         s32 rx = X;
