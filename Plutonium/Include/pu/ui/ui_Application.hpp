@@ -27,19 +27,52 @@ namespace pu::ui
             Application(render::Renderer::Ref Renderer);
             PU_SMART_CTOR(Application)
 
-            void LoadLayout(std::shared_ptr<Layout> Layout);
+            template<typename L>
+            inline void LoadLayout(std::shared_ptr<L> Layout)
+            {
+                static_assert(std::is_base_of_v<ui::Layout, L>);
+
+                this->lyt = std::static_pointer_cast<ui::Layout>(Layout);
+            }
+
+            template<typename L>
+            inline std::shared_ptr<L> GetLayout()
+            {
+                static_assert(std::is_base_of_v<ui::Layout, L>);
+
+                return std::static_pointer_cast<L>(this->lyt);
+            }
 
             void Prepare();
+
             // Force create a derived Application which should initialize everything here
             virtual void OnLoad() = 0;
 
             void AddThread(std::function<void()> Callback);
             void SetOnInput(std::function<void(u64 Down, u64 Up, u64 Held, Touch Pos)> Callback);
-            s32 ShowDialog(Dialog::Ref &ToShow);
-            int CreateShowDialog(const std::string& Title, const std::string& Content, std::vector<std::string> Options, bool UseLastOptionAsCancel, const std::string& Icon = "");
+            i32 ShowDialog(Dialog::Ref &ToShow);
+            int CreateShowDialog(String Title, String Content, std::vector<String> Options, bool UseLastOptionAsCancel, std::string Icon = "");
 
-            void StartOverlay(std::shared_ptr<Overlay> Overlay);
-            void StartOverlayWithTimeout(std::shared_ptr<Overlay> Overlay, u64 Milli);
+            template<typename O>
+            inline void StartOverlay(std::shared_ptr<O> Overlay)
+            {
+                static_assert(std::is_base_of_v<ui::Overlay, O>);
+
+                if (this->ovl == nullptr) this->ovl = std::dynamic_pointer_cast<ui::Overlay>(Overlay);
+            }
+
+            template<typename O>
+            inline void StartOverlayWithTimeout(std::shared_ptr<O> Overlay, u64 Milli)
+            {
+                static_assert(std::is_base_of_v<ui::Overlay, O>);
+
+                if (this->ovl == nullptr)
+                {
+                    this->ovl = std::dynamic_pointer_cast<ui::Overlay>(Overlay);
+                    this->tmillis = Milli;
+                    this->tclock = std::chrono::steady_clock::now();
+                }
+            }
 
             void EndOverlay();
             void Show();
@@ -83,7 +116,7 @@ namespace pu::ui
             std::function<bool(render::Renderer::Ref&)> rof;
             bool show;
             u8 aapf;
-            s32 fadea;
+            i32 fadea;
             bool closefact;
             Layout::Ref lyt;
             u64 tmillis;
