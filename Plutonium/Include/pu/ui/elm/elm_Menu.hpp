@@ -12,6 +12,7 @@
 */
 
 #pragma once
+#include <pu/pu_String.hpp>
 #include <pu/ui/elm/elm_Element.hpp>
 #include <vector>
 #include <chrono>
@@ -22,11 +23,11 @@ namespace pu::ui::elm
     class MenuItem
     {
         public:
-            MenuItem(const std::string& Name);
+            MenuItem(String Name);
             PU_SMART_CTOR(MenuItem)
 
-            std::string GetName();
-            void SetName(const std::string& Name);
+            String GetName();
+            void SetName(String Name);
             Color GetColor();
             void SetColor(Color Color);
             void AddOnClick(std::function<void()> Callback, u64 Key = HidNpadButton_A);
@@ -39,9 +40,9 @@ namespace pu::ui::elm
             void SetFactor(float Factor);
             float GetFactor();
         private:
-            std::string name;
+            String name;
             Color clr;
-            bool hasicon = false;
+            bool hasicon;
             std::string icon;
             float factor = 0;
             std::vector<std::function<void()>> cbs;
@@ -51,7 +52,7 @@ namespace pu::ui::elm
     class Menu : public Element
     {
         public:
-            Menu(s32 X, s32 Y, s32 Width, Color OptionColor, s32 ItemSize, s32 ItemsToShow, s32 fontSize = 25);
+            Menu(s32 X, s32 Y, s32 Width, Color OptionColor, s32 ItemSize, s32 ItemsToShow);
             PU_SMART_CTOR(Menu)
 
             s32 GetX();
@@ -102,9 +103,8 @@ namespace pu::ui::elm
             std::chrono::time_point<std::chrono::steady_clock> basetime;
             std::function<void()> onselch;
             std::vector<MenuItem::Ref> itms;
-            render::NativeFont font;
-            render::NativeFont meme;
-            std::vector<render::NativeTexture> loadednames;
-            std::vector<render::NativeTexture> loadedicons;
+            String font_name;
+            std::vector<sdl2::Texture> loadednames;
+            std::vector<sdl2::Texture> loadedicons;
     };
 }

@@ -17,28 +17,31 @@ include $(DEVKITPRO)/libnx/switch_rules
 #---------------------------------------------------------------------------------
 BUILD		:=	Build
 TARGET		:=  pu
-SOURCES		:=	Source Source/pu Source/pu/audio Source/pu/ui Source/pu/ui/elm Source/pu/ui/extras Source/pu/ui/render Source/pu/web
-INCLUDES	:=	Include Include/pu Include/pu/audio Include/pu/ui Include/pu/ui/elm Include/pu/ui/extras Include/pu/ui/render Include/pu/web
+SOURCES		:=	Source Source/pu Source/pu/audio Source/pu/ui Source/pu/ttf Source/pu/sdl2 Source/pu/ui/elm Source/pu/ui/extras Source/pu/ui/render
+INCLUDES	:=	Include
 
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
 ARCH	:=	-march=armv8-a -mtune=cortex-a57 -mtp=soft -fPIC -ftls-model=local-exec
 
-CFLAGS	:=	-g -D__SWITCH__ \
+CFLAGS	:=	-g -w -D__SWITCH__ \
 			-ffunction-sections \
 			-fdata-sections \
 			$(ARCH) \
 
-CFLAGS	+=	$(INCLUDE)
-CFLAGS  +=  `freetype-config --cflags` -Wall
+CFLAGS	+=	$(INCLUDE) -I$(PORTLIBS)/include/freetype2 -DPU_MAJOR=$(PU_MAJOR) -DPU_MINOR=$(PU_MINOR) -DPU_MICRO=$(PU_MICRO) -DPU_VERSION=\"$(PU_MAJOR).$(PU_MINOR).$(PU_MICRO)\"
 
-CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++17 -Wall
+CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++17
 
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=${DEVKITPRO}/libnx/switch.specs -g $(ARCH) -Wl,-r,-Map,$(notdir $*.map)
 
-# LIBS	:=  -lnx -lfreetype -lSDL2_ttf -lSDL2_mixer -lmodplug -lmpg123 -lvorbisidec -logg -lSDL2_gfx -lSDL2_image -lSDL2 -lEGL -lGLESv2 -lglapi -ldrm_nouveau -lpng -ljpeg `sdl2-config --libs` `freetype-config --libs`
+SDL_IMAGE_LIBS	:= -lSDL2_image -lpng -ljpeg
+SDL_GFX_LIBS	:= -lSDL2_gfx
+SDL_MIXER_LIBS	:= -lSDL2_mixer -lmodplug -lmpg123 -lvorbisidec -logg
+
+LIBS	:=  $(SDL_IMAGE_LIBS) $(SDL_GFX_LIBS) $(SDL_MIXER_LIBS) -lEGL -lGLESv2 -lglapi `sdl2-config --libs` `freetype-config --libs`
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
@@ -100,7 +103,7 @@ $(BUILD):
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
-	@rm -rf Output
+	@rm -fr $(CURDIR)/Output
 	@rm -fr $(BUILD) $(OUTPUT).a
 
 #---------------------------------------------------------------------------------
